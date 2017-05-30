@@ -20,6 +20,32 @@ var wavesi : int := 0
 var grida : array 1 .. 17, 1 .. 2 of int
 var gridi : int := 0
 
+var turnPoint : array 0 .. 5, 0 .. 3 of int
+turnPoint (0, 0) := 750
+turnPoint (0, 1) := 50
+turnPoint (0, 2) := 0
+turnPoint (0, 3) := 1
+turnPoint (1, 0) := 650
+turnPoint (1, 1) := 450
+turnPoint (1, 2) := -1
+turnPoint (1, 3) := 0
+turnPoint (2, 0) := 450
+turnPoint (2, 1) := 450
+turnPoint (2, 2) := 0
+turnPoint (2, 3) := -1
+turnPoint (3, 0) := 450
+turnPoint (3, 1) := 250
+turnPoint (3, 2) := -1
+turnPoint (3, 3) := 0
+turnPoint (4, 0) := 150
+turnPoint (4, 1) := 250
+turnPoint (4, 2) := 0
+turnPoint (4, 3) := 1
+turnPoint (5, 0) := 150
+turnPoint (5, 1) := 450
+turnPoint (5, 2) := -1
+turnPoint (5, 3) := 0
+
 procedure waveStats (next : string)
     wavesi += 1
     waves (wavesi) := next
@@ -54,6 +80,13 @@ procedure drawSprite (gameTick : int, var data : array 0 .. *, 0 .. * of int)
 	    data (i, 3) += data (i, 5)
 	    data (i, 4) += data (i, 6)
 	end if
+       locatexy (0,650)
+	put data (i, 3), " ", turnPoint (data (i, 8), 0), " ", data (i, 4), " ", turnPoint (data (i, 8), 1)
+	if data (i, 3) = turnPoint (data (i, 8), 0) and data (i, 4) = turnPoint (data (i, 8), 1) then
+	    data (i, 8) += 1
+	    data (i, 5) := turnPoint (data (i, 8), 2)
+	    data (i, 6) := turnPoint (data (i, 8), 3)
+	end if
 	drawfillbox (data (i, 3) - 50, data (i, 4) - 50, data (i, 3) + 50, data (i, 4) + 50, data (i, 7))
     end for
 end drawSprite
@@ -67,24 +100,25 @@ waveStats ("123412")
 
 %enemy
 var enemyId : int := 0
-var enemies : array 0 .. 3, 0 .. 7 of int
-procedure eStats (enemyId, health, gold, speed, x, y, xd, xy, c : int)
+var enemies : array 0 .. 3, 0 .. 8 of int
+procedure eStats (enemyId, health, gold, speed, x, y, xd, yd, c, ti : int)
     enemies (enemyId, 0) := health
     enemies (enemyId, 1) := gold
     enemies (enemyId, 2) := speed
     enemies (enemyId, 3) := x
     enemies (enemyId, 4) := y
     enemies (enemyId, 5) := xd
-    enemies (enemyId, 6) := xy
+    enemies (enemyId, 6) := yd
     enemies (enemyId, 7) := c
+    enemies (enemyId, 8) := ti
 end eStats
-eStats (enemyId, 3, 2, 2, 900, 50, -1, 0, black)
+eStats (enemyId, 3, 2, 2, 900, 50, -1, 0, black, 0)
 enemyId += 1
-eStats (enemyId, 3, 4, 4, 900, 50, -1, 0, red)
+eStats (enemyId, 3, 4, 4, 900, 50, -1, 0, red, 0)
 enemyId += 1
-eStats (enemyId, 3, 4, 6, 900, 50, -1, 0, yellow)
+eStats (enemyId, 3, 4, 6, 900, 50, -1, 0, yellow, 0)
 enemyId += 1
-eStats (enemyId, 3, 4, 8, 900, 50, -1, 0, blue)
+eStats (enemyId, 3, 4, 8, 900, 50, -1, 0, blue, 0)
 
 %nekos
 var nekoid : int := 0
@@ -184,8 +218,8 @@ loop
 	end for
 	if select not= 0 then
 	    nosi += 1
-	    nos (nosi, 1) := gcx*100
-	    nos (nosi, 2) := (gcy - 1)*100
+	    nos (nosi, 1) := gcx * 100
+	    nos (nosi, 2) := (gcy - 1) * 100
 	    nos (nosi, 3) := select
 	    gold -= nekos (select, 5)
 	    select := 0
@@ -195,20 +229,20 @@ loop
     if nosi not= 0 then
 	for i : 1 .. nosi
 	    if nos (i, 1) not= 0 then
-		drawoval (nos (i, 1) - 50, nos (i, 2)+ 50, nekos (nos (i, 3), 2), nekos (nos (i, 3), 2), 6)
+		drawoval (nos (i, 1) - 50, nos (i, 2) + 50, nekos (nos (i, 3), 2), nekos (nos (i, 3), 2), 6)
 		%reading unit location
-		drawfillbox (nos (i, 1) , nos (i, 2), nos (i, 1) - 100, nos (i, 2)+100, nos (i, 3))
+		drawfillbox (nos (i, 1), nos (i, 2), nos (i, 1) - 100, nos (i, 2) + 100, nos (i, 3))
 	    end if
 	end for
     end if
     %attacking
     for i : 1 .. nosi
 	for j : 1 .. upper (enemies)
-	    if Math.Distance (nos (i, 1)-50, nos (i, 2)-50, enemies (j, 3), enemies (j, 4)) < nekos (nos (i, 3),2)  then
-	    if gameTick mod nekos (nos (i, 3),1)=0 then
-	    enemies (j, 0) -= 1
-	    end if
+	    if Math.Distance (nos (i, 1) - 50, nos (i, 2) - 50, enemies (j, 3), enemies (j, 4)) < nekos (nos (i, 3), 2) then
+		if gameTick mod nekos (nos (i, 3), 1) = 0 then
+		    enemies (j, 0) -= 1
+		end if
 	    end if
 	end for
-    end for 
+    end for
 end loop
