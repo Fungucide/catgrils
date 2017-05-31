@@ -1,3 +1,5 @@
+include "enemy.t"
+
 var map : int
 map := Pic.FileNew ("map.jpg")
 map := Pic.Scale (map, 900, 600)
@@ -21,7 +23,7 @@ var grida : array 1 .. 17, 1 .. 2 of int
 var gridi : int := 0
 
 var turnPoint : array 0 .. 5, 0 .. 3 of int
-turnPoint (0, 0) := 750
+turnPoint (0, 0) := 650
 turnPoint (0, 1) := 50
 turnPoint (0, 2) := 0
 turnPoint (0, 3) := 1
@@ -74,23 +76,6 @@ gridStat (2, 4)
 gridStat (2, 5)
 gridStat (1, 5)
 
-procedure drawSprite (gameTick : int, var data : array 0 .. *, 0 .. * of int)
-    for i : 0 .. upper (data)
-	if gameTick mod data (i, 2) = 0 then
-	    data (i, 3) += data (i, 5)
-	    data (i, 4) += data (i, 6)
-	end if
-       locatexy (0,650)
-	put data (i, 3), " ", turnPoint (data (i, 8), 0), " ", data (i, 4), " ", turnPoint (data (i, 8), 1)
-	if data (i, 3) = turnPoint (data (i, 8), 0) and data (i, 4) = turnPoint (data (i, 8), 1) then
-	    data (i, 8) += 1
-	    data (i, 5) := turnPoint (data (i, 8), 2)
-	    data (i, 6) := turnPoint (data (i, 8), 3)
-	end if
-	drawfillbox (data (i, 3) - 50, data (i, 4) - 50, data (i, 3) + 50, data (i, 4) + 50, data (i, 7))
-    end for
-end drawSprite
-
 waveStats ("1234")
 waveStats ("123234")
 waveStats ("12323412")
@@ -99,26 +84,11 @@ waveStats ("123412")
 
 
 %enemy
-var enemyId : int := 0
-var enemies : array 0 .. 3, 0 .. 8 of int
-procedure eStats (enemyId, health, gold, speed, x, y, xd, yd, c, ti : int)
-    enemies (enemyId, 0) := health
-    enemies (enemyId, 1) := gold
-    enemies (enemyId, 2) := speed
-    enemies (enemyId, 3) := x
-    enemies (enemyId, 4) := y
-    enemies (enemyId, 5) := xd
-    enemies (enemyId, 6) := yd
-    enemies (enemyId, 7) := c
-    enemies (enemyId, 8) := ti
-end eStats
-eStats (enemyId, 3, 2, 2, 900, 50, -1, 0, black, 0)
-enemyId += 1
-eStats (enemyId, 3, 4, 4, 900, 50, -1, 0, red, 0)
-enemyId += 1
-eStats (enemyId, 3, 4, 6, 900, 50, -1, 0, yellow, 0)
-enemyId += 1
-eStats (enemyId, 3, 4, 8, 900, 50, -1, 0, blue, 0)
+var enemies : array 0 .. 1 of ^Enemy
+new Enemy,enemies(0)
+enemies (0) -> initialize (3, 2, 2, 900, 50, -1, 0, 0, black)
+new Enemy,enemies(1)
+enemies (1) -> initialize (3, 2, 4, 900, 50, -1, 0, 0, red)
 
 %nekos
 var nekoid : int := 0
@@ -163,8 +133,8 @@ delay (3000)
 var gameTick : int := 0
 
 loop
-    gameTick := (gameTick + 1) mod 24
-    drawSprite (gameTick, enemies)
+    gameTick += 1
+   enemies(0)->draw(gameTick,turnPoint)
 
     View.Update
     delay (12)
@@ -236,7 +206,7 @@ loop
 	end for
     end if
     %attacking
-    for i : 1 .. nosi
+    /*for i : 1 .. nosi
 	for j : 1 .. upper (enemies)
 	    if Math.Distance (nos (i, 1) - 50, nos (i, 2) - 50, enemies (j, 3), enemies (j, 4)) < nekos (nos (i, 3), 2) then
 		if gameTick mod nekos (nos (i, 3), 1) = 0 then
@@ -244,5 +214,5 @@ loop
 		end if
 	    end if
 	end for
-    end for
+    end for*/
 end loop
