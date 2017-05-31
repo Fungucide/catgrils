@@ -1,3 +1,5 @@
+%test
+
 class Enemy
 
     export (health, gold, speed, x, y, xd, yd, c, ti, isValid, initialize, draw,setValid)
